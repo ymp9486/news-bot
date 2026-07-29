@@ -5,6 +5,11 @@ on:
     # 매주 월요일 UTC 00:30 = KST 09:30
     - cron: '30 0 * * 1'
   workflow_dispatch:
+    inputs:
+      warn_days:
+        description: '경고 임계값(일). 테스트 시 0 입력하면 알림 강제 발송'
+        required: false
+        default: '45'
 
 permissions:
   contents: write        # keepalive 커밋에 필요
@@ -26,4 +31,5 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WARN_DAYS: ${{ github.event.inputs.warn_days || '45' }}
         run: python keepalive.py
