@@ -1,0 +1,30 @@
+name: 뉴스 봇 (요청 응답)
+
+on:
+  schedule:
+    # 50분마다 실행 → 사실상 24시간 대기
+    - cron: '*/50 * * * *'
+  workflow_dispatch:
+
+# 중복 실행 방지
+concurrency:
+  group: news-bot
+  cancel-in-progress: false
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 봇 폴링
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_SECONDS: '2900'
+        run: python bot.py
