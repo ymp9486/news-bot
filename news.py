@@ -106,6 +106,28 @@ def summarize(it, maxlen=70):
     return t[:maxlen].rstrip() + "…" if len(t) > maxlen else t
 
 
+def translate(text, src="ja", dst="ko"):
+    """일본어 → 한국어 번역 (실패 시 빈 문자열)"""
+    try:
+        q = urllib.parse.quote(text[:480])
+        url = ("https://api.mymemory.translated.net/get"
+               "?q={}&langpair={}|{}".format(q, src, dst))
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            d = json.loads(r.read().decode())
+        out = (d.get("responseData") or {}).get("translatedText", "")
+        out = html.unescape(out).strip()
+        # 번역 실패 시 API가 경고문을 반환하는 경우 제외
+        if not out or "MYMEMORY WARNING" in out.upper():
+            return ""
+        if out == text:
+            return ""
+        return out
+    except Exception as e:
+        print("translate fail: {}".format(e), file=sys.stderr)
+        return ""
+
+
 def build():
     jp, kr = [], []
     for cc, cat, url in FEEDS:
@@ -128,7 +150,11 @@ def build():
     L = ["📰 한일 뉴스 3줄 요약",
          now.strftime("%Y년 %m월 %d일 (%a) %H:%M"), "", "🇯🇵 일본"]
     for i, it in enumerate(top_stories(jp), 1):
-        L.append("{}. {}".format(i, summarize(it)))
+        orig = summarize(it)
+        L.append("{}. {}".format(i, orig))
+        ko = translate(orig)
+        if ko:
+            L.append("   ↳ {}".format(ko))
     L += ["", "🇰🇷 한국"]
     for i, it in enumerate(top_stories(kr), 1):
         L.append("{}. {}".format(i, summarize(it)))
