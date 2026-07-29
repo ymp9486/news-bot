@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 KST = timezone(timedelta(hours=9))
 REPO = os.environ.get("GITHUB_REPOSITORY", "")
 GH_TOKEN = os.environ.get("GH_TOKEN", "").strip()
-WARN_DAYS = 45          # 이 날짜를 넘기면 경고
+WARN_DAYS = int(os.environ.get("WARN_DAYS", "45"))   # 이 날짜를 넘기면 경고
 STAMP = "keepalive.txt"
 
 
@@ -85,12 +85,16 @@ def main():
         sys.exit(1)
 
     if days is not None and days >= WARN_DAYS:
-        tg("🔔 뉴스봇 연장 알림\n\n"
-           "마지막 활동으로부터 {}일이 지났습니다.\n"
-           "방금 자동 연장을 완료했으니 조치는 필요 없습니다.\n\n"
+        tg("🔔 뉴스봇 자동 연장 완료\n\n"
+           "마지막 활동으로부터 {}일이 지나\n"
+           "방금 자동으로 연장했습니다.\n\n"
+           "✅ 매일 09:00 뉴스 발송 정상 유지\n"
+           "✅ 별도 조치는 필요 없습니다\n\n"
            "저장소: https://github.com/{}".format(days, REPO))
+        print("연장 알림 발송 완료")
     else:
-        print("정상 (경고 불필요)")
+        print("정상 (경고 불필요, 경과 {}일 < 기준 {}일)".format(
+            days, WARN_DAYS))
 
 
 if __name__ == "__main__":
