@@ -36,11 +36,22 @@
 ## 파일 구성
 
 ```
-news.py                        뉴스 수집 + 3줄 요약 + 발송
-bot.py                         텔레그램 요청 응답 폴링
-.github/workflows/news.yml     매일 9시 자동 발송
-.github/workflows/bot.yml      50분마다 봇 폴링
+news.py                          뉴스 수집 + 3줄 요약 + 발송
+bot.py                           텔레그램 요청 응답 폴링
+keepalive.py                     60일 만료 방지 + 알림
+.github/workflows/news.yml       매일 9시 자동 발송
+.github/workflows/bot.yml        50분마다 봇 폴링
+.github/workflows/keepalive.yml  매주 월요일 자동 연장
 ```
+
+## 자동 연장
+
+GitHub은 저장소에 60일간 활동이 없으면 스케줄을 자동으로 중지합니다.
+`keepalive.yml` 이 **매주 월요일** 실행되어 자동으로 커밋을 남기므로
+사용자가 직접 조치할 필요가 없습니다.
+
+- 자동 연장 실패 시 텔레그램으로 즉시 경고
+- 마지막 활동이 45일을 넘으면 알림 발송
 
 ## 시간 변경
 
@@ -57,4 +68,4 @@ bot.py                         텔레그램 요청 응답 폴링
 
 - GitHub Actions의 스케줄은 서버 부하에 따라 **수 분~수십 분 지연**될 수 있습니다.
 - 퍼블릭 저장소는 Actions 사용량이 무료입니다.
-- 60일간 커밋이 없으면 스케줄이 자동 비활성화됩니다. 가끔 커밋하거나 수동 실행해 주세요.
+- 60일 만료는 `keepalive.yml` 이 자동으로 방지합니다.
