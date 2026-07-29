@@ -1,0 +1,29 @@
+name: 자동 연장 (만료 방지)
+
+on:
+  schedule:
+    # 매주 월요일 UTC 00:30 = KST 09:30
+    - cron: '30 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write        # keepalive 커밋에 필요
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 만료 방지 및 알림
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python keepalive.py
