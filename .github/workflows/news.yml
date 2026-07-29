@@ -1,0 +1,24 @@
+name: 뉴스 브리핑
+
+on:
+  schedule:
+    # UTC 00:00 = 한국시간 09:00
+    - cron: '0 0 * * *'
+  workflow_dispatch:        # 수동 실행 버튼
+
+jobs:
+  briefing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 뉴스 수집 및 발송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python news.py
